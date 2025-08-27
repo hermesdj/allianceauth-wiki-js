@@ -98,3 +98,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+schema.graphql
+graphql.config.yml

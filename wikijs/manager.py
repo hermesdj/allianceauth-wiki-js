@@ -96,8 +96,9 @@ class WikiJSManager:
         return data
 
     # Users *****************************************************************************************************
-    def __find_user(self, email):
-        logger.debug(f"Hitting API looking for: {email[:10]}")
+    def __find_user(self, user):
+        email = user.username.lower() + '@alliance.auth.com'
+        logger.debug(f"Hitting API looking for: {email[:20]}")
         data = json.loads(self.client.execute(_find_user_query, variables={"char_email": email.lower()}))
         logger.debug(f"API returned: {data}")
         users = data.get("data", {}).get("users", {}).get("search", [])
@@ -125,12 +126,12 @@ class WikiJSManager:
             _create_user_mutation,
             variables={
                 "group_list": group_list,
-                "email": user.email.lower(),
+                "email": user.username.lower() + '@alliance.auth.com',
                 "name": name,
                 "pass": password}))
         logger.debug(f"API returned: {data}")
         if data["data"]["users"]["create"]["responseResult"]["succeeded"]:
-            uid = self.__find_user(user.email.lower())
+            uid = self.__find_user(user)
             if uid:
                 WikiJs.objects.update_or_create(user=user, uid=uid)
                 return uid
@@ -239,7 +240,7 @@ class WikiJSManager:
     def activate_user(self, user):
         # search
         try:
-            uid = self.__find_user(user.email.lower())
+            uid = self.__find_user(user)
             # create
             if not uid:
                 logger.info(f"Creating new user for {user.username}")

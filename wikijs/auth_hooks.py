@@ -64,7 +64,7 @@ class WikiJSService(ServicesHook):
             'service_name': self.title,
             'urls': urls,
             'service_url': self.service_url,
-            'username': request.user.email if self.user_has_account(request.user) else ''
+            'username': request.user.username.lower() + '@alliance.auth.com' if self.user_has_account(request.user) else ''
         }, request=request)
 
     def user_has_account(self, user):
