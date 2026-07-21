@@ -2,14 +2,12 @@ import json
 import re
 from hashlib import md5
 
-from graphqlclient import GraphQLClient
-
+from allianceauth.services.hooks import NameFormatter, get_extension_logger
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.crypto import get_random_string
-
-from allianceauth.services.hooks import NameFormatter, get_extension_logger
+from graphqlclient import GraphQLClient
 
 from .app_settings import WIKIJS_API_URL
 from .models import WikiJs
@@ -92,7 +90,8 @@ class WikiJSManager:
 
     def __find_pages(self, search_string, locale):
         logger.debug(f"Hitting API looking for page {search_string}")
-        data = json.loads(self.client.execute(_find_pages_query, variables={"search_str": search_string, "locale": locale}))
+        data = json.loads(
+            self.client.execute(_find_pages_query, variables={"search_str": search_string, "locale": locale}))
         return data
 
     # Users *****************************************************************************************************
@@ -136,14 +135,19 @@ class WikiJSManager:
                 WikiJs.objects.update_or_create(user=user, uid=uid)
                 return uid
         else:
-            logger.error("WikiJs unable to Create User. {}".format(data["data"]["users"]["create"]["responseResult"]["message"]))
+            logger.error(
+                "WikiJs unable to Create User. {}".format(data["data"]["users"]["create"]["responseResult"]["message"]))
         return False
 
     def __deactivate_user(self, uid):
         data = json.loads(self.client.execute(_deactivate_user_mutation, variables={"uid": uid}))
+        if not data["data"]["users"]["deactivate"]:
+            logger.error("WikiJs unable to deactivate User. {}".format(data["data"]["users"]["deactivate"]))
+            return False
         result = data["data"]["users"]["deactivate"]["responseResult"]["succeeded"]
         if not result:
-            logger.error("WikiJs unable to deactivate User. {}".format(data["data"]["users"]["deactivate"]["responseResult"]["message"]))
+            logger.error("WikiJs unable to deactivate User. {}".format(
+                data["data"]["users"]["deactivate"]["responseResult"]["message"]))
         else:
             WikiJs.objects.filter(uid=uid).delete()
         return result
@@ -152,7 +156,8 @@ class WikiJSManager:
         data = json.loads(self.client.execute(_activate_user_mutation, variables={"uid": uid}))
         result = data["data"]["users"]["activate"]["responseResult"]["succeeded"]
         if not result:
-            logger.error("WikiJs unable to activate User. {}".format(data["data"]["users"]["activate"]["responseResult"]["message"]))
+            logger.error("WikiJs unable to activate User. {}".format(
+                data["data"]["users"]["activate"]["responseResult"]["message"]))
         return result
 
     def _update_password(self, uid, password):
@@ -165,7 +170,8 @@ class WikiJSManager:
         try:
             result = data["data"]["users"]["update"]["responseResult"]["succeeded"]
             if not result:
-                logger.error("WikiJs unable to update password for User. {}".format(data["data"]["users"]["update"]["responseResult"]["message"]))
+                logger.error("WikiJs unable to update password for User. {}".format(
+                    data["data"]["users"]["update"]["responseResult"]["message"]))
             return result
         except TypeError:
             logger.error(f"WikiJs unable to update password for User. {uid}")
@@ -212,13 +218,13 @@ class WikiJSManager:
         name = name.replace(' ', '_')
         name = name.replace("'", '')
         name = name.lstrip(' _')
-        name = name[:20]
+        name = name[:32]
         name = name.rstrip(' _')
         return name
 
     @staticmethod
     def _sanitize_groupname(name):
-        name = re.sub(r'[^\w]', '', name)
+        name = re.sub(r'\W', '', name)
         name = WikiJSManager._sanitize_name(name)
         if len(name) < 3:
             name = "Group " + name

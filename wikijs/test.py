@@ -50,31 +50,30 @@ class WikiJSHooksTestCase(TestCase):
     def test_delete_user_with_no_wiki(self):  # this doesn't fail properly on sqlite investigate more tests on mysql/psql
         User.objects.get(username=self.del_user).delete()
 
-    @mock.patch(MODULE_PATH + '.manager.WikiJSManager._update_user')
-    def test_update_user(self, disable):
-        disable.execute.return_value = True
+    @mock.patch(MODULE_PATH + '.tasks.WikiJSTasks.update_member')
+    def test_update_user(self, mock_task):
         service = self.service()
-        # Test member is not deleted
         member = User.objects.get(username=self.member)
-        self.assertTrue(service.update_groups(member))
-        self.assertTrue(disable.called)
+        result = service.update_groups(member)
+        self.assertTrue(result)
+        mock_task.delay.assert_called_once_with(member.pk)
 
-    @mock.patch(MODULE_PATH + '.manager.WikiJSManager._update_user')
-    def test_update_non_user(self, disable):
-        disable.execute.return_value = True
+    @mock.patch(MODULE_PATH + '.tasks.WikiJSTasks.update_member')
+    def test_update_non_user(self, mock_task):
         service = self.service()
         # Test member is not deleted
         member = User.objects.get(username=self.none_user)
         self.assertFalse(service.update_groups(member))
-        self.assertFalse(disable.called)
+        mock_task.delay.assert_not_called()
 
     @mock.patch(MODULE_PATH + '.manager.WikiJSManager._update_user')
     def test_update_all_users(self, disable):
         disable.execute.return_value = True
         service = self.service()
         # Test member is not deleted
-        service.update_all_groups()
-        self.assertEqual(disable.call_count, 1)
+        with mock.patch(MODULE_PATH + '.tasks.WikiJSTasks.update_member') as mock_task:
+            service.update_all_groups()
+            self.assertEqual(mock_task.delay.call_count, 1)
 
     @mock.patch(MODULE_PATH + '.manager.WikiJSManager.client')
     def test_validate_user(self, disable):

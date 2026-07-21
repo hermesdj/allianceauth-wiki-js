@@ -14,21 +14,19 @@ keywords = [
 license = { file = "LICENSE" }
 authors = [
     { name = "AaronKable", email = "aaronkable@gmail.com" },
+    { name = "Jay", email = "jays.gaming.contact@gmail.com" },
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 classifiers = [
     "Environment :: Web Environment",
     "Framework :: Celery",
     "Framework :: Django",
-    "Framework :: Django :: 4.0",
-    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.2",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -41,15 +39,15 @@ dynamic = [
     "version",
 ]
 dependencies = [
-    "allianceauth<5,>=3",
+    "allianceauth>=5,<6",
     "graphqlclient",
 ]
 optional-dependencies.discordbot = [
     "allianceauth-discordbot>=3.8",
 ]
-urls.Homepage = "https://github.com/Solar-Helix-Independent-Transport/allianceauth-wiki-js"
-urls.Source = "https://github.com/Solar-Helix-Independent-Transport/allianceauth-wiki-js"
-urls.Tracker = "https://github.com/Solar-Helix-Independent-Transport/allianceauth-wiki-js/issues"
+urls.Homepage = "https://github.com/hermesdj/allianceauth-wiki-js"
+urls.Source = "https://github.com/hermesdj/allianceauth-wiki-js"
+urls.Tracker = "https://github.com/hermesdj/allianceauth-wiki-js"
 
 [tool.flit.module]
 name = "wikijs"
@@ -65,15 +63,15 @@ sections = [
     "FIRSTPARTY",
     "LOCALFOLDER",
 ]
-known_allianceauth = [ "allianceauth", "esi" ]
-known_django = [ "django" ]
+known_allianceauth = ["allianceauth", "esi"]
+known_django = ["django"]
 skip_gitignore = true
 
 [tool.flake8]
-exclude = [ ".git", "*migrations*", ".tox", "dist", "htmlcov" ]
+exclude = [".git", "*migrations*", ".tox", "dist", "htmlcov"]
 max-line-length = 119
-select = [ "C", "E", "F", "W", "B", "B950" ]
-ignore = [ 'E203', 'E231', 'E501', 'W503', 'W291', 'W293' ]
+select = ["C", "E", "F", "W", "B", "B950"]
+ignore = ['E203', 'E231', 'E501', 'W503', 'W291', 'W293']
 
 [tool.djlint]
 max_attribute_length = 119

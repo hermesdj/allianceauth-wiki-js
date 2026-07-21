@@ -86,4 +86,4 @@ def register_cogs():
     if WIKIJS_AADISCORDBOT_INTEGRATION is True:
         return ["wikijs.cogs.wikijs"]
     else:
-        return [""]
+        return []
